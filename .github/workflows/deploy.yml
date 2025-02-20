@@ -1,0 +1,38 @@
+name: Deploy
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      FLY_ACCESS_TOKEN: ${{ secrets.FLY_ACCESS_TOKEN }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup flyctl
+        uses: superfly/flyctl-actions/setup-flyctl@master
+      - name: deploy xray
+        working-directory: ./xray
+        env:
+          XRAY_USER: ${{ secrets.XRAY_USER }}
+        run: |
+          mv ./config.json t.json
+          jq '.inbounds.[0].settings.clients.[0].id = $ENV.XRAY_USER' ./t.json > ./config.json
+          rm t.json
+
+          apps=("hk" "us" "eu")
+          regions=("hkg" "sea" "lhr")
+
+          for i in "${!apps[@]}"; do
+            app=${apps[$i]}
+            region=${regions[$i]}
+            
+            flyctl apps create bonjour-xray-"$app" || true
+            flyctl deploy --app bonjour-xray-"$app" --regions "$region"
+            flyctl --app bonjour-xray-"$app" scale count 1
+          done
