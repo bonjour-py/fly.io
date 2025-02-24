@@ -7,7 +7,7 @@ on:
     branches: [ "main" ]
 
 jobs:
-  deploy xray:
+  deploy_xray:
     runs-on: ubuntu-latest
     strategy:
       matrix:
