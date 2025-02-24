@@ -28,10 +28,13 @@ jobs:
           XRAY_USER: ${{ secrets.XRAY_USER }}
         run: |
           cat ./config.json | jq '.inbounds.[0].settings.clients.[0].id = $ENV.XRAY_USER'  > ./config.json
+          cat ./config.json
 
-          r=(${{ matrix.version }})
+          r=(${{ matrix.regions }})
           app=${r[0]}
           region=${r[1]}
-          flyctl apps create bonjour-xray-"$app" || true
-          flyctl deploy --app bonjour-xray-"$app" --regions "$region"
-          flyctl --app bonjour-xray-"$app" scale count 1
+          echo $app
+          echo $region
+          # flyctl apps create bonjour-xray-"$app" || true
+          # flyctl deploy --app bonjour-xray-"$app" --regions "$region"
+          # flyctl --app bonjour-xray-"$app" scale count 1
