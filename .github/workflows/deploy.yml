@@ -27,7 +27,8 @@ jobs:
         env:
           XRAY_USER: ${{ secrets.XRAY_USER }}
         run: |
-          cat ./config.json | jq '.inbounds.[0].settings.clients.[0].id = $ENV.XRAY_USER'  > ./config.json
+          jq '.inbounds.[0].settings.clients.[0].id = $ENV.XRAY_USER' ./config.json > ./config.json.tmp
+          mv config.json.tmp config.json
           cat ./config.json
 
           r=(${{ matrix.regions }})
