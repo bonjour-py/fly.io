@@ -18,8 +18,6 @@ jobs:
             code: sea
           - name: eu
             code: lhr
-    env:
-      FLY_ACCESS_TOKEN: ${{ secrets.FLY_ACCESS_TOKEN }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -28,6 +26,7 @@ jobs:
       - name: deploy 
         working-directory: ./xray
         env:
+          FLY_ACCESS_TOKEN: ${{ secrets.FLY_ACCESS_TOKEN }}
           XRAY_USER: ${{ secrets.XRAY_USER }}
         run: |
           jq '.inbounds.[0].settings.clients.[0].id = $ENV.XRAY_USER' ./config.json > ./config.json.tmp
