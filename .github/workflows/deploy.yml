@@ -12,9 +12,12 @@ jobs:
     strategy:
       matrix:
         regions:
-          - hk hkg
-          - us sea
-          - eu lhr
+          - name: hk
+            code: hkg
+          - name: us
+            code: sea
+          - name: eu
+            code: lhr
     env:
       FLY_ACCESS_TOKEN: ${{ secrets.FLY_ACCESS_TOKEN }}
     steps:
@@ -27,11 +30,8 @@ jobs:
         env:
           XRAY_USER: ${{ secrets.XRAY_USER }}
         run: |
-          r=(${{ matrix.regions }})
-          app=${r[0]}
-          region=${r[1]}
           jq '.inbounds.[0].settings.clients.[0].id = $ENV.XRAY_USER' ./config.json > ./config.json.tmp
           mv config.json.tmp config.json
-          flyctl apps create bonjour-xray-"$app" || true
-          flyctl deploy --app bonjour-xray-"$app" --regions "$region"
-          flyctl --app bonjour-xray-"$app" scale count 1
+          flyctl apps create bonjour-xray-${{ matrix.regions.name }} || true
+          flyctl deploy --app bonjour-xray-${{ matrix.regions.name }} --regions ${{ matrix.regions.code }}
+          flyctl --app bonjour-xray-${{ matrix.regions.name }} scale count 1
